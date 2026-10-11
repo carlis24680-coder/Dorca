@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Dorca Conecta | Calculadora</title>
+<style>
+:root{--bg:#050b13;--panel:#0b1d31;--panel2:#071523;--gold:#f6c744;--text:#f7f8fa;--muted:#aab7c7;--line:#ffffff18;--green:#21c875;--red:#ff7676}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top,#173452 0,#071321 42%,#03070d 100%);font-family:Arial,Helvetica,sans-serif;color:var(--text)}button,input,select{font:inherit}.wrap{width:min(1080px,100%);margin:auto;padding:18px}.top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px}.brand{display:flex;align-items:center;gap:14px}.logo{width:78px;height:78px;object-fit:contain;border-radius:18px;background:#000}.brand h1{margin:0;color:var(--gold);font-size:clamp(28px,6vw,44px);line-height:.95}.brand p{margin:7px 0 0;color:var(--muted)}.adminBtn{border:1px solid #f6c74488;background:#0c2945;color:var(--gold);font-weight:800;border-radius:14px;padding:14px 18px;cursor:pointer}.card{background:linear-gradient(145deg,#0b2036,#071625);border:1px solid var(--line);border-radius:24px;padding:20px;margin:16px 0;box-shadow:0 20px 55px #0007}h2{margin:0 0 8px;color:var(--gold);font-size:25px}.muted{color:var(--muted)}.rateGrid,.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.rate{background:#061525;border:1px solid var(--line);border-radius:17px;padding:16px}.rate b{display:block}.big{font-size:28px;font-weight:900;color:var(--gold);margin-top:9px}.tabs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}.tab{border:0;border-radius:15px;background:#1a3552;color:#fff;padding:16px 12px;font-weight:900;cursor:pointer}.tab.active{background:var(--gold);color:#071525}label{display:block;font-weight:800;margin:12px 0 7px}input,select{width:100%;padding:14px 15px;border-radius:13px;border:1px solid #ffffff20;background:#061321;color:#fff;outline:none}input:focus,select:focus{border-color:#f6c74488}.result{height:100%;min-height:205px;background:#061321;border-radius:17px;padding:18px}.resultTitle{color:var(--muted)}.resultValue{font-size:30px;font-weight:900;color:var(--gold);margin:12px 0}.formula{color:var(--muted);line-height:1.5}.notice{padding:12px;border-radius:12px;margin-top:10px;background:#102a43}.ok{color:#8af0b7}.err{color:#ff9c9c}.wa{width:100%;border:0;border-radius:14px;background:var(--green);color:#fff;font-weight:900;padding:15px;margin-top:14px;cursor:pointer}.copy{border:0;background:var(--gold);color:#071525;border-radius:9px;padding:9px 12px;font-weight:900;cursor:pointer}.pay{padding:14px;border-radius:14px;background:#061321;margin:9px 0}.payrow{display:flex;align-items:center;justify-content:space-between;gap:12px}.hidden{display:none!important}.adminBox{border-color:#f6c74455}.adminGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.footer{text-align:center;color:#8293a8;padding:20px 0}.small{font-size:13px}.range{margin-top:10px;color:var(--muted)}@media(max-width:700px){.wrap{padding:12px}.top{align-items:flex-start}.brand{align-items:flex-start}.logo{width:66px;height:66px}.adminBtn{padding:11px 12px}.rateGrid,.grid,.adminGrid{grid-template-columns:1fr}.tabs{grid-template-columns:1fr}.card{padding:16px}.payrow{align-items:flex-start}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <div class="brand"><img class="logo" src="/logo-dorca.png" alt="Dorca Conecta"><div><h1>Dorca<br>Conecta</h1><p>Calculadora Colombia ↔ Venezuela</p></div></div>
+  <button class="adminBtn" onclick="openAdmin()">Administrador</button>
+</header>
+
+<section class="card">
+<h2>✨ Tasas publicadas</h2><p class="muted">Estas son las tasas vigentes que verá cada cliente.</p>
+<div class="rateGrid">
+ <div class="rate"><b>🇨🇴 Colombia → 🇻🇪 Venezuela</b><div id="topCoVe" class="big">3,95</div></div>
+ <div class="rate"><b>🇻🇪 Venezuela → 🇨🇴 Colombia</b><div id="topVeCo" class="big">3,00</div></div>
+ <div class="rate"><b>💵 Dólar en Colombia</b><div id="topUsdCo" class="big">$ 3.330 COP</div></div>
+ <div class="rate"><b>💵 Dólar BCV Venezuela</b><div id="topUsdVe" class="big">855,66 Bs</div></div>
+</div>
+<div id="topDate" class="range">Cargando tasas publicadas…</div>
+</section>
+
+<section class="card">
+<h2>Calcula tu operación</h2><p class="muted">Calcula cuánto envías y cuánto recibe la otra persona.</p>
+<div class="tabs"><button id="tabCo" class="tab active" onclick="setMode('coVe')">🇨🇴 Colombia → 🇻🇪 Venezuela</button><button id="tabVe" class="tab" onclick="setMode('veCo')">🇻🇪 Venezuela → 🇨🇴 Colombia</button></div>
+<div class="grid">
+<div>
+<label id="amountLabel">Pesos que envías (COP)</label><input id="amount" type="number" inputmode="decimal" placeholder="Ej: 100000" oninput="calculate()">
+<div id="limits" class="muted small">Mínimo $20.000 · Máximo $4.000.000 COP</div>
+<label>Modo de cálculo</label><select id="calcMode" onchange="draw();calculate()"><option value="normal">Sé cuánto envío</option><option value="inverse">Sé cuánto quiero que reciban</option></select>
+<div id="inverseBox" class="hidden"><label id="inverseLabel">Monto que quiero recibir</label><input id="inverseAmount" type="number" inputmode="decimal" oninput="calculate()"></div>
+</div>
+<div class="result"><div class="resultTitle">Resultado</div><div id="result" class="resultValue">—</div><div id="dollars" class="muted"></div><p id="formula" class="formula"></p><div id="error" class="err"></div></div>
+</div>
+<button class="wa" onclick="sendWhatsApp()">🟢 Continuar esta operación por WhatsApp</button>
+</section>
+
+<section class="card"><h2>📌 Tasas publicadas</h2>
+<div class="rateGrid"><div class="rate"><b>🇨🇴 → 🇻🇪</b><div id="pubCoVe" class="big">—</div></div><div class="rate"><b>🇻🇪 → 🇨🇴</b><div id="pubVeCo" class="big">—</div></div><div class="rate"><b>💵 Dólar Colombia</b><div id="pubUsdCo" class="big">—</div></div><div class="rate"><b>💵 Dólar BCV</b><div id="pubUsdVe" class="big">—</div></div></div>
+<div id="pubDate" class="range"></div></section>
+
+<section class="card"><h2>💳 Métodos de pago</h2><p class="muted">Cada dato tiene su propio botón para copiar.</p>
+<h3>🇨🇴 Colombia → Venezuela</h3><div id="coPays"></div>
+<h3>🇻🇪 Venezuela → Colombia</h3><div id="vePays"></div></section>
+
+<section class="card"><button class="wa" onclick="directWhatsApp()">📲 Hablar por WhatsApp</button></section>
+
+<section id="adminBox" class="card adminBox hidden">
+<h2>🔐 Área de administrador</h2><p class="muted">Ingresa la contraseña para administrar las tasas.</p>
+<input id="password" type="password" placeholder="Contraseña de administrador" autocomplete="current-password">
+<button class="adminBtn" style="margin-top:10px" onclick="login()">Entrar</button><div id="loginMsg" class="notice hidden"></div>
+<div id="panel" class="hidden">
+<div class="adminGrid">
+<div><label>Colombia → Venezuela</label><input id="coVe" type="number" step="0.01"></div>
+<div><label>Venezuela → Colombia</label><input id="veCo" type="number" step="0.01"></div>
+<div><label>Dólar Colombia</label><input id="usdCo" type="number" step="0.01"></div>
+<div><label>Dólar BCV Venezuela</label><input id="usdVe" type="number" step="0.01"></div>
+<div><label>Vigente desde</label><input id="from" type="date"></div>
+<div><label>Vigente hasta</label><input id="to" type="date"></div>
+</div>
+<label>Nota</label><input id="note" placeholder="Ej: Tasas vigentes del día">
+<button class="wa" onclick="saveRates()">💾 Publicar tasas</button><div id="saveMsg" class="notice hidden"></div>
+</div></section>
+<footer class="footer">Dorca Conecta · Tu confianza, nuestra prioridad</footer>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const WA='573019211382';
+let mode='coVe';
+let R={coVe:3.95,veCo:3,usdCo:3330,usdVe:855.66,valid_from:'2026-10-01',valid_to:'',notes:''};
+const fmt=n=>new Intl.NumberFormat('es-CO',{maximumFractionDigits:2}).format(Number(n)||0);
+function render(){
+ $('topCoVe').textContent=fmt(R.coVe);$('topVeCo').textContent=fmt(R.veCo);$('topUsdCo').textContent='$ '+fmt(R.usdCo)+' COP';$('topUsdVe').textContent=fmt(R.usdVe)+' Bs';
+ $('pubCoVe').textContent=fmt(R.coVe);$('pubVeCo').textContent=fmt(R.veCo);$('pubUsdCo').textContent='$ '+fmt(R.usdCo)+' COP';$('pubUsdVe').textContent=fmt(R.usdVe)+' Bs';
+ $('coVe').value=R.coVe;$('veCo').value=R.veCo;$('usdCo').value=R.usdCo;$('usdVe').value=R.usdVe;$('from').value=R.valid_from||'';$('to').value=R.valid_to||'';$('note').value=R.notes||'';
+ const txt='Vigente desde: '+(R.valid_from||'hoy')+(R.valid_to?' · Hasta: '+R.valid_to:'');$('topDate').textContent=txt;$('pubDate').textContent=txt;
+}
+function setMode(m){mode=m;$('tabCo').classList.toggle('active',m==='coVe');$('tabVe').classList.toggle('active',m==='veCo');$('amount').value='';$('inverseAmount').value='';$('calcMode').value='normal';draw();calculate()}
+function draw(){const inv=$('calcMode').value==='inverse';$('inverseBox').classList.toggle('hidden',!inv);$('amountLabel').textContent=mode==='coVe'?'Pesos que envías (COP)':'Bolívares que envías (Bs)';$('limits').textContent=mode==='coVe'?'Mínimo $20.000 · Máximo $4.000.000 COP':'Mínimo 5.000 Bs · Máximo 300.000 Bs';$('inverseLabel').textContent=mode==='coVe'?'Bolívares que quieres recibir':'Pesos que quieres recibir (COP)'}
+function calculate(){const inv=$('calcMode').value==='inverse',x=Number(inv?$('inverseAmount').value:$('amount').value);$('error').textContent='';if(!x){$('result').textContent='—';$('dollars').textContent='';$('formula').textContent='';return}let out;if(mode==='coVe'){out=inv?x*R.coVe:x/R.coVe;$('result').textContent=fmt(out)+' Bs';$('dollars').textContent='≈ US$ '+fmt(out/R.usdVe)+' en Venezuela';$('formula').textContent=inv?fmt(x)+' Bs × '+R.coVe+' = $'+fmt(out)+' COP':'$'+fmt(x)+' COP ÷ '+R.coVe+' = '+fmt(out)+' Bs';if(!inv&&(x<20000||x>4000000))$('error').textContent='Debe estar entre $20.000 y $4.000.000 COP.'}else{out=inv?x/R.veCo:x*R.veCo;$('result').textContent='$'+fmt(out)+' COP';$('dollars').textContent='≈ US$ '+fmt(out/R.usdCo)+' en Colombia';$('formula').textContent=inv?'$'+fmt(x)+' COP ÷ '+R.veCo+' = '+fmt(out)+' Bs':fmt(x)+' Bs × '+R.veCo+' = $'+fmt(out)+' COP';if(!inv&&(x<5000||x>300000))$('error').textContent='Debe estar entre 5.000 y 300.000 Bs.'}}
+function sendWhatsApp(){const inv=$('calcMode').value==='inverse',x=Number(inv?$('inverseAmount').value:$('amount').value);if(!x){alert('Coloca un monto primero.');return}const out=mode==='coVe'?(inv?x*R.coVe:x/R.coVe):(inv?x/R.veCo:x*R.veCo);const t=mode==='coVe'?`Hola Dorca Conecta 👋\nColombia → Venezuela\nEnvío: $${fmt(inv?out:x)} COP\nReciben: ${fmt(inv?x:out)} Bs\nTasa: ${R.coVe}`:`Hola Dorca Conecta 👋\nVenezuela → Colombia\nEnvío: ${fmt(inv?out:x)} Bs\nReciben: $${fmt(inv?x:out)} COP\nTasa: ${R.veCo}`;location.href='https://wa.me/'+WA+'?text='+encodeURIComponent(t)}
+function directWhatsApp(){location.href='https://wa.me/'+WA+'?text='+encodeURIComponent('Hola Dorca Conecta 👋 Quiero realizar una operación.')}
+function cp(v,b){navigator.clipboard?.writeText(v).catch(()=>{});b.textContent='¡Copiado!';setTimeout(()=>b.textContent='Copiar',1000)}
+function payments(){const co=[['Dorca Pinto','3019211382'],['Eliexer Bolívar','3245364232'],['Ashley Bolívar','3207545616'],['Llave Bre','@dorca057']];$('coPays').innerHTML=co.map(x=>`<div class="pay"><div class="payrow"><span><b>${x[0]}</b><br>${x[1]}</span><button class="copy" onclick="cp('${x[1]}',this)">Copiar</button></div></div>`).join('');const ve=[['Banco de Venezuela','Pago móvil · consultar datos al contactar'],['Banco Venezolano de Crédito','Pago móvil · consultar datos al contactar']];$('vePays').innerHTML=ve.map(x=>`<div class="pay"><div class="payrow"><span><b>${x[0]}</b><br>${x[1]}</span><button class="copy" onclick="cp('${x[1]}',this)">Copiar</button></div></div>`).join('')}
+function openAdmin(){$('adminBox').classList.toggle('hidden');$('adminBox').scrollIntoView({behavior:'smooth'})}
+async function login(){const msg=$('loginMsg');msg.className='notice';msg.classList.remove('hidden');msg.textContent='Verificando…';try{const r=await fetch('/api/rates',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'login',password:$('password').value})});const d=await r.json().catch(()=>({}));if(!r.ok){msg.textContent=d.error||'❌ Contraseña incorrecta.';msg.className='notice err';$('panel').classList.add('hidden');return}msg.textContent='✅ Contraseña correcta. Puedes publicar las tasas.';msg.className='notice ok';$('panel').classList.remove('hidden');}catch(e){msg.textContent='No se pudo conectar con el administrador.';msg.className='notice err'}}
+async function saveRates(){const msg=$('saveMsg');msg.className='notice';msg.classList.remove('hidden');msg.textContent='Publicando…';try{const r=await fetch('/api/rates',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'save',password:$('password').value,rate:{coVe:$('coVe').value,veCo:$('veCo').value,usdColombia:$('usdCo').value,usdVenezuela:$('usdVe').value,validFrom:$('from').value,validTo:$('to').value,notes:$('note').value}})});const d=await r.json().catch(()=>({}));if(!r.ok){msg.textContent=d.error||'❌ No se pudo publicar.';msg.className='notice err';return}R={coVe:+d.rate.co_ve,veCo:+d.rate.ve_co,usdCo:+d.rate.usd_colombia,usdVe:+d.rate.usd_venezuela,valid_from:d.rate.valid_from,valid_to:d.rate.valid_to,notes:d.rate.notes};render();msg.textContent='✅ Tasas publicadas correctamente. Los clientes las verán al actualizar la página.';msg.className='notice ok'}catch(e){msg.textContent='❌ No se pudo conectar con el servidor.';msg.className='notice err'}}
+async function loadRates(){try{const r=await fetch('/api/rates?x='+Date.now(),{cache:'no-store'});const d=await r.json();if(d.rate){R={coVe:+d.rate.co_ve,veCo:+d.rate.ve_co,usdCo:+d.rate.usd_colombia,usdVe:+d.rate.usd_venezuela,valid_from:d.rate.valid_from||'',valid_to:d.rate.valid_to||'',notes:d.rate.notes||''};render()}}catch(e){render()}}
+render();draw();payments();loadRates();
+</script>
+</body>
+</html>
